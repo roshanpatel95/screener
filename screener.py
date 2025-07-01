@@ -5,7 +5,7 @@ import requests
 # --- CONFIG ---
 TICKERS = ["RDDT", "AAPL", "SPY", "QQQ", "MSFT", "META", "TSLA"]  # Customize
 DETACH_THRESHOLD = 0.01 / 100  # 0.01%
-DISCORD_WEBHOOK = "https://discord.com/api/webhooks/..."  # replace with yours
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1389683227886882888/WS5YJSmGZtQb9zLtVfipeKoHArMa-IWMfxrcYLUBiPRmdkRU7lAskoW9K33aUdP8MfOS"  # replace with yours
 
 def fetch_data(ticker):
     df = yf.download(ticker, period="250d", interval="1d")
