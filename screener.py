@@ -3,7 +3,11 @@ import pandas as pd
 import requests
 
 # --- CONFIG ---
-TICKERS = ["RDDT", "AAPL", "SPY", "QQQ", "MSFT", "META", "TSLA"]  # Customize
+TICKERS = [
+    "AAPL", "AMD", "AMZN", "AVGO", "BABA", "BRK.B", "COST", "CRWV", "GOOGL",
+    "JNJ", "JPM", "KO", "LLY", "META", "MSFT", "NFLX", "NVDA", "ORCL", "PG",
+    "PLTR", "QQQ", "RDDT", "SPY", "TSLA", "TSM", "UNH", "V", "WMT", "XOM"
+]
 DETACH_THRESHOLD = 0.01 / 100  # 0.01%
 DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1389683227886882888/WS5YJSmGZtQb9zLtVfipeKoHArMa-IWMfxrcYLUBiPRmdkRU7lAskoW9K33aUdP8MfOS"  # replace with yours
 
@@ -14,13 +18,17 @@ def fetch_data(ticker):
 
 def check_detachment(ticker):
     df = fetch_data(ticker)
-    if df.empty or 'EMA200' not in df:
+    if df.empty or 'EMA200' not in df.columns: # Changed to df.columns for clarity
         return None
 
     latest = df.iloc[-1]
+    # Ensure these are scalar values using .item() if there's any ambiguity,
+    # though direct access like this usually works for single elements of a Series.
     close = latest['Close']
     ema200 = latest['EMA200']
-    detachment = abs(close - ema200) / ema200
+    
+    # Explicitly convert to float to prevent any Series-like behavior
+    detachment = float(abs(close - ema200) / ema200)
 
     if detachment > DETACH_THRESHOLD:
         direction = "above" if close > ema200 else "below"
@@ -31,6 +39,8 @@ def check_detachment(ticker):
 def send_discord_alert(message):
     data = {"content": message}
     response = requests.post(DISCORD_WEBHOOK, json=data)
+    # Print status code for debugging in GitHub Actions logs
+    print(f"Discord alert sent with status code: {response.status_code}") 
     return response.status_code
 
 def run_screener():
@@ -42,4 +52,3 @@ def run_screener():
 
 if __name__ == "__main__":
     run_screener()
-
